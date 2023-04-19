@@ -1,6 +1,7 @@
 add_rules("mode.debug", "mode.release")
 
 target("ElfInject")
+    add_includedirs("inc")
     set_kind("binary")
     add_files("src/*.c")
 
