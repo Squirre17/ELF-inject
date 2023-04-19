@@ -3,7 +3,7 @@
 base:
     jmp past
 
-old_entry: /* shellcode entry in file offset */
+old_entry: /* original entry in file offset */
 .long 0
 
 new_entry: /* shellcode entry in file offset */
