@@ -1,8 +1,24 @@
 add_rules("mode.debug", "mode.release")
 
+rule("objcopy")
+    before_build(function (target)
+        os.exec("objcopy -O binary --only-section=.text %s %s", target:objectfile(1), target:targetfile())
+    end)
+
+target("prelude")
+    set_kind("binary")
+    add_files("shellcode/prelude.S")
+    add_rules("objcopy")
+
+target("shellcode")
+    set_kind("binary")
+    add_files("shellcode/shellcode.S")
+    add_rules("objcopy")
+    
 target("ElfInject")
     add_includedirs("inc")
     set_kind("binary")
+    add_files("src/*.S")
     add_files("src/*.c")
 
 --

@@ -44,7 +44,7 @@ void init_fmap(fmap_t *file, const char *filename)
 
     file = (fmap_t *)malloc(sizeof(fmap_t));
     if (!file) {
-        FAPANICTAL("Failed to allocate memory for file mapping");
+        PANIC("Failed to allocate memory for file mapping");
     }
 
     file->fd = fd;
@@ -67,6 +67,8 @@ void deinit_fmap(fmap_t *file)
 }
 
 shinfo *find_last_ex_section(fmap_t *elf, size_t shcd_size) {
+
+    OK("Finding last section in executable segment ...");
 
     Elf64_Ehdr *ehdr;
     Elf64_Phdr *phdr;
@@ -115,7 +117,7 @@ shinfo *find_last_ex_section(fmap_t *elf, size_t shcd_size) {
         }
 
         if (found == false) {
-            ACK("No sections in segment!? Searching for a new RX segment ...");
+            ACT("No sections in segment!? Searching for a new RX segment ...");
             continue;
         }
 
@@ -161,17 +163,17 @@ void adjust_offset(fmap_t *elf, shinfo *last_sinfo, target_t *target, size_t shc
     target->size = shcd_size;
 
     /* Fix up size */
-    INFO("Expanding %s size by %lu bytes...", last_sinfo->name, shcd_size + prelude_size);
+    OK("Expanding %s size by %lu bytes...", last_sinfo->name, shcd_size + prelude_size);
     *last_sinfo->size = size + shcd_size + prelude_size;
 
     Elf64_Phdr *phdr = (Elf64_Phdr *)((uintptr_t)elf->base + ehdr->e_phoff);
 
-    INFO("Adjusting Program Headers ...");
+    OK("Adjusting Program Headers ...");
     for (i = 0; i < ehdr->e_phnum; i++) {
 
         /* BUG: if two segments have X permission ? */
         if (phdr[i].p_flags & PF_X) {
-            INFO("Adjusting RX segment program header size ...");
+            OK("Adjusting RX segment program header size ...");
             phdr[i].p_filesz += shcd_size + prelude_size;
             phdr[i].p_memsz += shcd_size + prelude_size;
         }
@@ -179,7 +181,7 @@ void adjust_offset(fmap_t *elf, shinfo *last_sinfo, target_t *target, size_t shc
 
     //TODO: no necessary here?
     
-    // INFO("Adjusting ELF header offsets ...");
+    // OK("Adjusting ELF header offsets ...");
     // if (ehdr->e_shoff > target->addr)
     //     ehdr->e_shoff = ehdr->e_shoff + patch_size + prelude_size;
 
@@ -192,8 +194,65 @@ void adjust_offset(fmap_t *elf, shinfo *last_sinfo, target_t *target, size_t shc
 void adjust_entry(fmap_t *elf, target_t *target, uint32_t *old_entry)
 {
     Elf64_Ehdr *ehdr;
-    INFO("Modifying ELF e_entry to point to the patch at 0x%08x ...", target->addr);
+    OK("Modifying ELF e_entry to point to the patch at 0x%08x ...", target->addr);
     ehdr = (Elf64_Ehdr *)elf->base;
     *old_entry = ehdr->e_entry;
     ehdr->e_entry = (uint32_t)target->addr;
+}
+
+void writeback(fmap_t *elf, fmap_t *shcd, char *outfile, target_t *target, uint32_t old_entry)
+{
+    int fd;
+    int n;
+    size_t remaining;
+    bool rv = false;
+    uint8_t *prelude_buf = NULL;
+    uint32_t prelude_size;
+
+    OK("writebakc ELF to %s ...", outfile);
+
+    fd = open(outfile, O_RDWR | O_CREAT | O_TRUNC, 0777);
+    if (fd == -1) {
+        PANIC("Failed to create patched ELF");
+    }
+
+    OK("Writing first part of ELF (size: %u) (i.e. ELF header - end of last section)", target->addr);
+
+    /* write until the start of shellcode location s*/
+    ck_write(fd, elf->base, target->addr, "None");
+
+    prelude_size = (uintptr_t)&g_prelude_end - (uintptr_t)&g_prelude_start;
+    prelude_buf = (uint8_t *)malloc(prelude_size);
+
+    if (!prelude_buf) {
+        PANIC("Failed to allocate memory for the prelude buffer");
+    }
+    memcpy(prelude_buf, &g_prelude_start, prelude_size);
+
+    OK("Setting old and new e_entry values in prelude ...");
+    *(uint32_t *)(prelude_buf + 2) = old_entry;     // old_entry
+    *(uint32_t *)(prelude_buf + 6) = target->addr;  // new_entry
+
+    OK("Writing prelude (size: %u) ...", prelude_size);
+    ck_write(fd, prelude_buf, prelude_size, "None");
+
+
+    OK("Writing patch/payload (size: %u)", shcd->size);
+    ck_write(fd, shcd->base, shcd->size, "None");
+
+
+    remaining = elf->size - (target->addr - target->size);
+
+    if (!remaining) {
+        // maybe executable segment at the tail of the file??? maybe this idea impossible
+        goto done;
+    }
+
+    /* Write rest of the ELF */
+    OK("Writing remaining data (size: %lu)", remaining);
+    ck_write(fd, elf->base + target->addr, remaining, "None");
+
+done:
+    free(prelude_buf);
+    close(fd);
 }

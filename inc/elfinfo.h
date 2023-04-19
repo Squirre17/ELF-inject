@@ -6,15 +6,13 @@
 
 #define MAX_SH_NAMELEN 128
 
-/* section header info */
+/* section header OK */
 typedef struct {
     char name[MAX_SH_NAMELEN];
     uint32_t *offset;
     uint32_t *size;
 }shinfo;
 
-extern void init_fmap(fmap_t *file, const char *filename);
-extern void deinit_fmap(fmap_t *file);
 
 typedef struct {
     int fd;
@@ -22,8 +20,11 @@ typedef struct {
     uint8_t *base;
 } fmap_t;
 
+extern void init_fmap(fmap_t *file, const char *filename);
+extern void deinit_fmap(fmap_t *file);
+
+/* target_t section in which our shellcode will inject */
 typedef struct {
-    /* target_t section in which our shellcode will inject */
     ssize_t addr;
     ssize_t size;
 }target_t;
@@ -59,4 +60,8 @@ shinfo *find_last_ex_section(fmap_t *elf, size_t shcd_size);
  */
 void adjust_entry(fmap_t *elf, target_t *target, uint32_t *old_entry);
 
+/**TODO:
+ * 
+*/
+void writeback(fmap_t *elf, fmap_t *shcd, char *outfile, target_t *target, uint32_t old_entry);
 #endif

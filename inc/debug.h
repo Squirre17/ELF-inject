@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "types.h"
 
 #define __USE_COLOR__
 #ifdef __USE_COLOR__
