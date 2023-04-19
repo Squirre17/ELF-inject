@@ -1,23 +1,44 @@
 add_rules("mode.debug", "mode.release")
 
-rule("objcopy")
-    before_build(function (target)
-        os.exec("objcopy -O binary --only-section=.text %s %s", target:objectfile(1), target:targetfile())
-    end)
+-- Add prelude target
+-- target("prelude")
+--     set_kind("objects")
+--     add_files("shellcode/prelude.S")
+--     set_extension(".bin")
 
-target("prelude")
-    set_kind("binary")
-    add_files("shellcode/prelude.S")
-    add_rules("objcopy")
+--     before_link(function (target)
+--         print("test before_link")
+--     end)
+--     -- Add custom command to generate prelude.bin
+--     -- after_build(function (target) 
+--     print("objcopy -O binary --only-section=.text prelude.S.o prelude.bin")
+--     os.exec("objcopy -O binary --only-section=.text prelude.o prelude.bin") 
+--     -- end)
+-- target_end()
 
-target("shellcode")
-    set_kind("binary")
-    add_files("shellcode/shellcode.S")
-    add_rules("objcopy")
-    
+-- -- Add shellcode target
+-- target("shellcode")
+--     set_kind("binary")
+--     add_files("shellcode/shellcode.S")
+
+--     -- Add custom command to generate shellcode.bin
+--     add_custom_command("shellcode.bin", function (target)
+--             os.runv("gcc", {"-nostdlib", "-o", "shellcode.o", "shellcode.S"})
+--             os.runv("objcopy", {"-O", "binary", "--only-section=.text", "shellcode.o", "shellcode.bin"})
+--         end,
+--         {dependfile = "shellcode.S"})
+
+
 target("ElfInject")
+
     add_includedirs("inc")
     set_kind("binary")
+    
+    if is_mode("debug") then 
+        add_cxflags("-g") 
+        add_cxflags("-O0") 
+    end
+    
     add_files("src/*.S")
     add_files("src/*.c")
 
