@@ -7,11 +7,11 @@
 #define MAX_SH_NAMELEN 128
 
 /* section header info */
-struct shinfo {
+typedef struct {
     char name[MAX_SH_NAMELEN];
     uint32_t *offset;
     uint32_t *size;
-};
+}shinfo;
 
 extern void init_fmap(fmap_t *file, const char *filename);
 extern void deinit_fmap(fmap_t *file);
@@ -19,38 +19,44 @@ extern void deinit_fmap(fmap_t *file);
 typedef struct {
     int fd;
     int size;
-    uint8_t *data;
-    bool (* init_fmap)(fmap_t *file, const char *filename) = init_fmap;
-    void (* deinit_fmap)(fmap_t *file) = deinit_fmap;
+    uint8_t *base;
 } fmap_t;
 
-// /**
-//  * Fixup ELF header to expand a section size
-//  *
-//  * @param elf ELF information struct
-//  * @param sinfo Section information struct
-//  * @param tinfo Information on patch placement and size
-//  * @param patch_size Size of payload
-//  * @return true for success, false for failure
-//  */
-// bool expand_section(fmap_t *elf, struct shinfo *sinfo, struct tgt_info *tinfo, size_t patch_size);
+typedef struct {
+    /* target_t section in which our shellcode will inject */
+    ssize_t addr;
+    ssize_t size;
+}target_t;
 
-// /**
-//  * Locate last section in executable segment
-//  *
-//  * @param elf ELF information struct
-//  * @param patch_size Size of patch/payload
-//  * @return shinfo structure containing information on section to be expanded, or NULL on failure
-//  */
-// struct shinfo *find_exe_seg_last_section(fmap_t *elf, size_t patch_size);
+extern uint8_t *g_prelude_start;
+extern uint8_t *g_prelude_end;
 
-// /**
-//  * Overwrite ELF e_entry so that it points to the injected patch
-//  *
-//  * @param elf ELF informations struct
-//  * @param tinfo Information on patch placement and size
-//  * @param old_entry Pointer to output original e_entry offset
-//  */
-// void patch_entry(fmap_t *elf, struct tgt_info *tinfo, uint32_t *old_entry);
+/**
+ * Fixup associated section's offset
+ *
+ * @param elf ELF binary struct
+ * @param last_sinfo the section will be extended
+ * @param target contain the address into which shellcode and prelude will be injected
+ * @param shcd_size Size of shellcode
+ */
+void adjust_offset(fmap_t *elf, shinfo *last_sinfo, target_t *target, size_t shcd_size);
+
+/**
+ * find last section in executable segment
+ *
+ * @param elf ELF binary struct
+ * @param shcd_size Size of shellcode(not contain the prelude)
+ * @return shinfo structure containing information on section to be expanded, or NULL on failure
+ */
+shinfo *find_last_ex_section(fmap_t *elf, size_t shcd_size);
+
+/**
+ * Overwrite ELF e_entry so that it points to the injected shellcode
+ *
+ * @param elf ELF binary struct
+ * @param target contain the address into which shellcode and prelude will be injected
+ * @param old_entry Pointer to output original e_entry offset
+ */
+void adjust_entry(fmap_t *elf, target_t *target, uint32_t *old_entry);
 
 #endif

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "debug.h"
+#include "elfinfo.h"
 
 void help() {
     ACT("./elfinject <victim> <shellcode.bin> <outfile>");
