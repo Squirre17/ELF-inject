@@ -13,6 +13,17 @@ struct shinfo {
     uint32_t *size;
 };
 
+extern void init_fmap(fmap_t *file, const char *filename);
+extern void deinit_fmap(fmap_t *file);
+
+typedef struct {
+    int fd;
+    int size;
+    uint8_t *data;
+    bool (* init_fmap)(fmap_t *file, const char *filename) = init_fmap;
+    void (* deinit_fmap)(fmap_t *file) = deinit_fmap;
+} fmap_t;
+
 // /**
 //  * Fixup ELF header to expand a section size
 //  *
