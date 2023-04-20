@@ -139,7 +139,6 @@ shinfo *find_last_ex_section(fmap_t *elf, size_t shcd_size) {
 
     }
     FATAL("RX segment not found");
-    // exit(1);// TODO: temporary 
 out:
     return sinfo;
 
