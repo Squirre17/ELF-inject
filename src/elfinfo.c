@@ -175,20 +175,18 @@ void adjust_size(fmap_t *elf, shinfo *last_sinfo, target_t *target, size_t shcd_
         shdrs[last_sinfo->secidx].sh_size , shdrs[last_sinfo->secidx].sh_size + shcd_size + prelude_size);
     shdrs[last_sinfo->secidx].sh_size += target->size;
     
-    ACT("Adjusting Program Headers ...");// TODO: use sinfo->segidx
-    for (i = 0; i < ehdr->e_phnum; i++) {
+    ACT("Adjusting Program Headers ...");
 
-        /* BUG: if two segments have X permission ? */
-        if (phdrs[i].p_flags & PF_X) {
+    {
+        i = last_sinfo->segidx;
 
-            ACT("Adjusting RX segment[%d] program header size from 0x%08x to 0x%08x", 
-                i, phdrs[i].p_filesz, phdrs[i].p_filesz + shcd_size + prelude_size);
-                
-            phdrs[i].p_filesz += shcd_size + prelude_size;
-            phdrs[i].p_memsz  += shcd_size + prelude_size;
+        ACT("Adjusting RX segment[%d] program header size from 0x%08x to 0x%08x", 
+            i, phdrs[i].p_filesz, phdrs[i].p_filesz + shcd_size + prelude_size);
+            
+        phdrs[i].p_filesz += target->size;
+        phdrs[i].p_memsz  += target->size;
 
-            OK("Now segment' scope is 0x%08x - 0x%08x", phdrs[i].p_offset, phdrs[i].p_offset + phdrs[i].p_filesz);
-        }
+        OK("Now segment' scope is 0x%08x - 0x%08x", phdrs[i].p_offset, phdrs[i].p_offset + phdrs[i].p_filesz);
     }
     return;
 }
