@@ -64,8 +64,14 @@ shinfo *find_last_ex_section(fmap_t *elf, size_t shcd_size);
  */
 void adjust_entry(fmap_t *elf, target_t *target, uint32_t *old_entry);
 
-/**TODO:
+/**
+ * Write back to file 
  * 
+ * @param elf ELF binary struct
+ * @param shcd shellcode binary struct
+ * @param outfile output file name
+ * @param target contain the address into which shellcode and prelude will be injected
+ * @param old_entry Pointer to output original e_entry offset
 */
 void writeback(fmap_t *elf, fmap_t *shcd, char *outfile, target_t *target, uint32_t* old_entry);
 #endif
