@@ -1,5 +1,5 @@
 #!/bin/sh
-make -p build
+mkdir -p build
 as -o build/prelude.o shellcode/prelude.S
 objcopy -O binary --only-section=.text build/prelude.o build/prelude.bin
 as -o build/shellcode.o shellcode/shellcode.S

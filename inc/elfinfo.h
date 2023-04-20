@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "types.h"
 
 #define MAX_SH_NAMELEN 128
 
@@ -25,8 +26,8 @@ extern void deinit_fmap(fmap_t *file);
 
 /* target_t section in which our shellcode will inject */
 typedef struct {
-    ssize_t addr;
-    ssize_t size;
+    u64 addr;
+    u64 size;
 }target_t;
 
 extern uint8_t *g_prelude_start;
