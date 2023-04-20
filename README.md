@@ -20,6 +20,7 @@ LOAD                   0x6000
 END                    0x80f8
 ```
 here exist a hole between 0x5c81 - 0x6000 and its' permission with X.
+
 2. I need to inject my shellcode to the hole, What part I need to adjust?
     - The `.fini` section' size
     - The `LOAD` segment' size
