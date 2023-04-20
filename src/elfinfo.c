@@ -146,7 +146,7 @@ out:
 }
 
 /**/
-void adjust_offset(fmap_t *elf, shinfo *last_sinfo, target_t *target, size_t shcd_size)
+void adjust_size(fmap_t *elf, shinfo *last_sinfo, target_t *target, size_t shcd_size)
 {
     size_t      size;
     uint32_t    newoff;
@@ -170,10 +170,6 @@ void adjust_offset(fmap_t *elf, shinfo *last_sinfo, target_t *target, size_t shc
     target->offset = last_sinfo->offset + size; /* insert payload into the end of last section */
     target->size = shcd_size + prelude_size;
 
-    /* Fix up size */
-    // OK("Expanding %s size by %lu bytes...", last_sinfo->name, shcd_size + prelude_size);
-    // last_sinfo->size = size + shcd_size + prelude_size;
-
     /* fixup section' size */
     ACT("expand %s section' size from 0x%08x to 0x%08x", last_sinfo->name,
         shdrs[last_sinfo->secidx].sh_size , shdrs[last_sinfo->secidx].sh_size + shcd_size + prelude_size);
@@ -194,19 +190,6 @@ void adjust_offset(fmap_t *elf, shinfo *last_sinfo, target_t *target, size_t shc
             OK("Now segment' scope is 0x%08x - 0x%08x", phdrs[i].p_offset, phdrs[i].p_offset + phdrs[i].p_filesz);
         }
     }
-
-
-
-    //TODO: no necessary here?
-    // if no expand ,no necessary here    
-
-    // OK("Adjusting ELF header offsets ...");
-    // if (ehdr->e_shoff > target->offset)
-    //     ehdr->e_shoff = ehdr->e_shoff + shcd_size + prelude_size;
-
-    // if (ehdr->e_phoff > target->offset)
-    //     ehdr->e_phoff = ehdr->e_phoff + patch_size + prelude_size;
-
     return;
 }
 

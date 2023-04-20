@@ -20,7 +20,7 @@ void work(char *victim_name, char *shcd_name, char *outfile) {
     // last_sinfo allocated in find_last_ex_section
     last_sinfo = find_last_ex_section(&victim, shellcode.size);
 
-    adjust_offset(&victim, last_sinfo, &target, shellcode.size);
+    adjust_size(&victim, last_sinfo, &target, shellcode.size);
 
     adjust_entry(&victim, &target, &old_entry);
 

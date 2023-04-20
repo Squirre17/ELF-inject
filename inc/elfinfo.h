@@ -44,7 +44,7 @@ extern uint8_t *g_prelude_end;
  * @param target contain the address into which shellcode and prelude will be injected
  * @param shcd_size Size of shellcode
  */
-void adjust_offset(fmap_t *elf, shinfo *last_sinfo, target_t *target, size_t shcd_size);
+void adjust_size(fmap_t *elf, shinfo *last_sinfo, target_t *target, size_t shcd_size);
 
 /**
  * find last section in executable segment
