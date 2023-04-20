@@ -19,20 +19,19 @@ LOAD                   0x6000
         .eh_frame           0x7518-0x80f8
 END                    0x80f8
 ```
-here exist a hole between 0x5c81 - 0x6000 and its' permission with X.
+here exist a hole between 0x5c81 - 0x6000 and has' permission with X.
 
-2. I need to inject my shellcode to the hole, What part I need to adjust?
+2. I need to inject my shellcode to the hole, Which parts do I need to adjust?
     - The `.fini` section' size
     - The `LOAD` segment' size
     - modify the entry to 0x5c81(perserve the old entry)
 
 - What prelude do?
 
-prelude act as caller of shellcode, do something perserve state and jmp to shellcode and return to original logic. It let shellcode maker not worry about deal with diff binary.
+The prelude acts as caller of shellcode, do something perserve state and jmp to shellcode and return to original logic. It let shellcode maker not worry about deal with diff binary.
 
 
-prelude_inc.S provide two ptrs for size calculation, it will be embeded to my ElfInject. The only part we need to pass to ElfInject is shellcode which not contain the prelude.bin(cuz it 
-have embeded in my ElfInject alreadly)
+prelude_inc.S provide two ptrs for size calculation, it will be embeded to my ElfInject. The only part we need to pass to ElfInject is shellcode which not contain the prelude.bin(cuz it is embedded in my ElfInject alreadly)
 
 # LAYOUT
 ```shell
