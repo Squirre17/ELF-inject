@@ -32,7 +32,7 @@ prelude act as caller of shellcode, do something perserve state and jmp to shell
 
 
 prelude_inc.S provide two ptrs for size calculation, it will be embeded to my ElfInject. The only part we need to pass to ElfInject is shellcode which not contain the prelude.bin(cuz it 
-have embeded in my ElfInject)
+have embeded in my ElfInject alreadly)
 
 # LAYOUT
 ```shell
