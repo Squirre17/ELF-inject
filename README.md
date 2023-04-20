@@ -66,3 +66,19 @@ have embeded in my ElfInject)
 # EXTRA
 
 Not provide expand segment new cuz it too hard to debug...
+
+# USAGE
+
+```shell
+./bin_generate.sh
+xmake build
+./build/linux/x86_64/debug/ElfInject test/ls build/shellcode.bin test/ls-injected
+```
+
+
+```shell
+# squ @ squ-virtual-machine in ~/proj/ElfInject on git:master x [18:28:59] C:130
+$ ./test/ls-injected .
+This is a shellcode example
+Hbin_generate.sh  build inc  load  README.md  script  shellcode  src  test  xmake.lua
+```
