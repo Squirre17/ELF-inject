@@ -45,6 +45,7 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "fstream": "cpp",
-        "elfinfo.h": "c"
+        "elfinfo.h": "c",
+        "wait.h": "c"
     }
 }

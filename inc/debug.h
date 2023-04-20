@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include <unistd.h>
 #include "types.h"
 
@@ -172,7 +173,7 @@
   } while (0)
 
 /* powerful assert equal */
-#define ASSERT_EQ(varl, varr) do {                             \
+#define assert_eq(varl, varr) do {                             \
     if(varl != varr) {                                         \
         SAY(cREDp "\n[-] Assert failed :" cRST " %p == %p\n"   \
             ,varl, varr                                        \

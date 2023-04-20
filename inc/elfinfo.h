@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "types.h"
 
 #define MAX_SH_NAMELEN 128
@@ -10,8 +11,10 @@
 /* section header OK */
 typedef struct {
     char name[MAX_SH_NAMELEN];
-    uint32_t *offset;
-    uint32_t *size;
+    uint32_t offset;
+    uint32_t size;
+    uint32_t secidx;   /* index of section table for following fixup */
+    uint32_t segidx;   /* index of segment table for following fixup */
 }shinfo;
 
 
@@ -26,7 +29,7 @@ extern void deinit_fmap(fmap_t *file);
 
 /* target_t section in which our shellcode will inject */
 typedef struct {
-    u64 addr;
+    u64 offset;
     u64 size;
 }target_t;
 
@@ -64,5 +67,5 @@ void adjust_entry(fmap_t *elf, target_t *target, uint32_t *old_entry);
 /**TODO:
  * 
 */
-void writeback(fmap_t *elf, fmap_t *shcd, char *outfile, target_t *target, uint32_t old_entry);
+void writeback(fmap_t *elf, fmap_t *shcd, char *outfile, target_t *target, uint32_t* old_entry);
 #endif

@@ -1,0 +1,2 @@
+set context-sections regs disasm code
+set context-source-code-lines 0x20
